@@ -21,40 +21,69 @@ fun main() {
 }
 
 fun matrixMultiplication() {
-    TODO("Not yet implemented")
+    // read matrix A
+    println("Enter size of first matrix:")
+    val aDims = readDimensions() ?: return
+    val aMatrix = Matrix(aDims.first, aDims.second)
+    println("Enter first matrix:")
+    val aContent = readMatrix(aDims.first, aDims.second) ?: return
+    if (!aMatrix.init(aContent)) return
+    // read matrix B
+    println("Enter size of second matrix:")
+    val bDims = readDimensions() ?: return
+    if (aDims.second != bDims.first) {
+        println("Invalid input for dimensions i,j=$aDims and k,l=$bDims:" +
+                " Dimension j must match dimension k.")
+        return
+    }
+    val bMatrix = Matrix(bDims.first, bDims.second)
+    println("Enter second matrix:")
+    val bContent = readMatrix(bDims.first, bDims.second) ?: return
+    if (!bMatrix.init(bContent)) return
+    // calculate
+    val result = aMatrix * bMatrix
+    printMatrix(result)
 }
 
 fun addMatrices() {
+    // read matrix A
+    println("Enter size of first matrix:")
     val aDims = readDimensions() ?: return
-    val aMatrix = readMatrix(aDims.first, aDims.second) ?: return
+    val aMatrix = Matrix(aDims.first, aDims.second)
+    println("Enter first matrix:")
+    val aContent = readMatrix(aDims.first, aDims.second) ?: return
+    if (!aMatrix.init(aContent)) return
+    // read matrix B
     val bDims = readDimensions() ?: return
+    println("Enter size of second matrix:")
     if (aDims != bDims) {
         println("Invalid input for dimensions $aDims, $bDims: Dimensions of matrices must match.")
         return
     }
-    val bMatrix = readMatrix(bDims.first, bDims.second) ?: return
+    val bMatrix = Matrix(bDims.first, bDims.second)
+    println("Enter second matrix:")
+    val bContent = readMatrix(bDims.first, bDims.second) ?: return
+    if (!bMatrix.init(bContent)) return
+    // calculate and print
     val result = aMatrix + bMatrix
     printMatrix(result)
 }
 
 private fun scalarMultiplication() {
-    val aDims = readDimensions()
-    if (aDims != null) {
-        val aMatrix = readMatrix(aDims.first, aDims.second) ?: return
-        val constant = readConstant() ?: return
-        val result = aMatrix * constant
-        printMatrix(result)
-    }
-}
+    // read matrix A
+    println("Enter size of matrix:")
+    val aDims = readDimensions() ?: return
+    val aMatrix = Matrix(aDims.first, aDims.second)
+    println("Enter matrix:")
+    val aContent = readMatrix(aDims.first, aDims.second) ?: return
+    if (!aMatrix.init(aContent)) return
+    // read scalar
+    println("Enter constant:")
+    val constant = readConstant() ?: return
+    // calculate and print
+    val result = aMatrix * constant
+    printMatrix(result)
 
-
-operator fun List<List<Double>>.plus(bMatrix: List<List<Double>>) : List<List<Double>> {
-    return List(this.size) { i -> this@plus[i].mapIndexed { j, value ->
-        value + bMatrix[i][j]  } }
-}
-
-operator fun List<List<Double>>.times(constant: Double) : List<List<Double>> {
-    return List(this.size) { i -> this[i].map { value -> value * constant } }
 }
 
 fun readConstant() : Double? {
@@ -82,22 +111,22 @@ fun readDimensions(): Pair<Int, Int>? {
 }
 
 private fun readMatrix(n: Int, m: Int): List<List<Double>>? {
-    val matrix = List(n) { readln().split(" ")
-        .map(String::toDouble) }
-    if (matrix.all { it.size == m }) {
-        return matrix
-    } else {
-        println("Invalid input for matrix: Matrix rows do not correspond to dimension m=$m")
-        return null
+    val result = try {
+        List(n) { readln().split(" ").map {it.toDouble() }}
+    } catch (e: NumberFormatException) {
+        println("Invalid input for matrix: Not a number.")
+        null
     }
+    return result
 }
 
-fun printMatrix(result: List<List<Double>>) {
-    if (result.all { row -> row.all { no -> no.compareTo(no.toInt()) == 0} }) {
+fun printMatrix(result: Matrix) {
+    println("The result is:")
+    if (result.values.all { row -> row.all { no -> no.compareTo(no.toInt()) == 0} }) {
         // all Doubles are whole numbers -> cast to Int
-        println(result.joinToString("\n") { row ->
+        println(result.values.joinToString("\n") { row ->
             row.map { it.toInt() }.joinToString(" ") })
     } else {
-        println(result.joinToString("\n") { it.joinToString(" ") })
+        println(result.values.joinToString("\n") { it.joinToString(" ") })
     }
 }
