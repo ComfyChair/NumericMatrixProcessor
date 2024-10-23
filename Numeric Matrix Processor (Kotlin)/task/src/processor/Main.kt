@@ -60,8 +60,8 @@ fun transposeMatrix() {
 }
 
 fun matrixMultiplication() {
-    val aMatrix = readMatrix("first") ?: return
-    val bMatrix = readMatrix("second") ?: return
+    val aMatrix = readMatrix(" first") ?: return
+    val bMatrix = readMatrix(" second") ?: return
     if (aMatrix.dims.second != bMatrix.dims.first) {
         println("Invalid input for dimensions i,j=${aMatrix.dims} and k,l=${bMatrix.dims}:" +
                 " Dimension j must match dimension k.")
@@ -73,8 +73,8 @@ fun matrixMultiplication() {
 }
 
 fun addMatrices() {
-    val aMatrix = readMatrix("first") ?: return
-    val bMatrix = readMatrix("second") ?: return
+    val aMatrix = readMatrix(" first") ?: return
+    val bMatrix = readMatrix(" second") ?: return
     if (aMatrix.dims != bMatrix.dims) {
         println("Invalid input for dimensions ${aMatrix.dims}, ${bMatrix.dims}:" +
                 " Dimensions of matrices must match.")
@@ -97,7 +97,7 @@ private fun scalarMultiplication() {
 }
 
 fun readMatrix(adj: String) : Matrix? {
-    println("Enter size of $adj first matrix:")
+    println("Enter size of$adj matrix:")
     val dims = readDimensions() ?: return null
     val matrix = Matrix(dims.first, dims.second)
     println("Enter $adj matrix:")

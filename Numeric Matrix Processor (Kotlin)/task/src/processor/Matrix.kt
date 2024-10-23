@@ -115,15 +115,19 @@ class Matrix(private val n: Int, private val m: Int) {
     }
 
     fun print() {
+        //TODO("Adjust width of entries to actually needed width")
         println("The result is:")
-        if (values.all { row -> row.all { no -> no.compareTo(no.toInt()) == 0} }) {
+        val matrix : String = if (values.all { row -> row.all { no -> no.compareTo(no.toInt()) == 0} }) {
             // all Doubles are whole numbers -> cast to Int
-            println(values.joinToString("\n") { row ->
-                row.map { it.toInt() }.joinToString(" ") })
+            values.joinToString("\n") { row ->
+                row.joinToString(" ") { "% 4d".format(it.toInt()) }
+            }
         } else {
-            println(values.joinToString("\n") { it.joinToString(" ") })
+            values.joinToString("\n") { row ->
+                row.joinToString(" ") {"%8.2f".format(it) }
+            }
         }
-        println()
+        println("$matrix\n")
     }
 
 }
