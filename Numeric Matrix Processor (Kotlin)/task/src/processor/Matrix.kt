@@ -1,6 +1,9 @@
 package processor
 
+import kotlin.math.pow
+
 class Matrix(private val n: Int, private val m: Int) {
+    val dims = Pair(n, m)
     private lateinit var _values: List<List<Double>>
     val values: List<List<Double>> by lazy { _values }
     enum class TranspositionType { MAIN_DIAGONAL , SIDE_DIAGONAL , VERTICAL, HORIZONTAL }
@@ -68,4 +71,28 @@ class Matrix(private val n: Int, private val m: Int) {
             }
         }
     }
+
+    fun getDeterminant(): Double {
+        return determinantOf(values)
+
+    }
+
+    private fun determinantOf(values: List<List<Double>>): Double {
+        val determinant: Double
+        // case n==m==2
+        if (values.size == 2) {
+             determinant = values[0][0] * values[1][1] - values[0][1] * values[1][0]
+        } else {
+            // general case
+            determinant = List(values[0].size) { i -> values[0][i] * (-1.0).pow(i) * minor(values, Pair(0, i)) }.sum()
+        }
+        return determinant
+    }
+
+    private fun minor(values: List<List<Double>>, expand: Pair<Int,Int>): Double {
+        val subMatrix = values.filterIndexed { i, _ -> i != expand.first }  // filter row
+            .mapIndexed { _, row -> row.filterIndexed { j, _ -> j != expand.second } } // filter column
+        return determinantOf(subMatrix)
+    }
+
 }
