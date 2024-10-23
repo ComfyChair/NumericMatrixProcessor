@@ -3,66 +3,60 @@ package processor
 import processor.Matrix.TranspositionType
 import kotlin.system.exitProcess
 
+private const val MAIN_MENU = "############# Menu #############\n1. Add matrices\n2. Multiply matrix by a constant\n" +
+        "3. Multiply matrices\n4. Transpose matrix\n5. Calculate a determinant\n6. Inverse matrix\n0. Exit"
+private const val TRANSPOSE_MENU = "\n1. Main diagonal\n2. Side diagonal\n3. Vertical line\n4. Horizontal line\n"
+private const val ENTER = "\nYour choice: "
+
+private const val INVALID_INPUT = "Invalid input. Try again."
+
 fun main() {
     while (true) {
-        println("############# Menu #############")
-        println("1. Add matrices")
-        println("2. Multiply matrix by a constant")
-        println("3. Multiply matrices")
-        println("4. Transpose matrix")
-        println("5. Calculate a determinant")
-        println("0. Exit")
-        print("Your choice: ")
+        println(MAIN_MENU + ENTER)
         when (readln()) {
             "1" -> addMatrices()
             "2" -> scalarMultiplication()
             "3" -> matrixMultiplication()
             "4" -> transposeMatrix()
             "5" -> getDeterminant()
+            "6" -> invertMatrix()
             "0" -> exitProcess(0)
-            else -> println("Invalid input. Try again.")
+            else -> println(INVALID_INPUT)
         }
     }
 }
 
-fun getDeterminant() {
-    println("Enter matrix size:")
-    val dims = readDimensions() ?: return
-    val matrix = Matrix(dims.first, dims.second)
-    if (dims.second != dims.first) {
-        println("Invalid input for dimensions $dims: Can only calculate determinant for square matrices.")
-        return
+fun invertMatrix() {
+    val matrix = readMatrix("") ?: return
+    if (matrix.dims.first != matrix.dims.second) {
+        println("Invalid input: Only square matrices can be inverted.")
     }
-    println("Enter matrix:")
-    val content = readContent(dims.first) ?: return
-    if (!matrix.init(content)) return
-    // calculate determinant
+    val result = matrix.inverse()
+    result?.print() ?: println("No inverse matrix: Determinant is zero.")
+}
+
+fun getDeterminant() {
+    val matrix = readMatrix("") ?: return
     val result = matrix.getDeterminant()
     println(result)
 }
 
 fun transposeMatrix() {
-    // transposition type menu
-    println("\n1. Main diagonal")
-    println("2. Side diagonal")
-    println("3. Vertical line")
-    println("4. Horizontal line")
-    print("Your choice: ")
+    println(TRANSPOSE_MENU + ENTER)
     val type = when (readln()) {
         "1" -> TranspositionType.MAIN_DIAGONAL
         "2" -> TranspositionType.SIDE_DIAGONAL
         "3" -> TranspositionType.VERTICAL
         "4" -> TranspositionType.HORIZONTAL
         else -> {
-            println("Invalid input. Try again.")
+            println(INVALID_INPUT)
             return
         }
     }
-    // read matrix A
+
     val matrix = readMatrix("") ?: return
-    // transpose
     val result = matrix.transpose(type)
-    printMatrix(result)
+    result.print()
 }
 
 fun matrixMultiplication() {
@@ -75,7 +69,7 @@ fun matrixMultiplication() {
     }
     // calculate
     val result = aMatrix * bMatrix
-    printMatrix(result)
+    result.print()
 }
 
 fun addMatrices() {
@@ -88,7 +82,7 @@ fun addMatrices() {
     }
     // calculate and print
     val result = aMatrix + bMatrix
-    printMatrix(result)
+    result.print()
 }
 
 private fun scalarMultiplication() {
@@ -99,8 +93,7 @@ private fun scalarMultiplication() {
     val constant = readConstant() ?: return
     // calculate and print
     val result = matrix * constant
-    printMatrix(result)
-
+    result.print()
 }
 
 fun readMatrix(adj: String) : Matrix? {
@@ -111,6 +104,16 @@ fun readMatrix(adj: String) : Matrix? {
     val content = readContent(dims.first) ?: return null
     if (!matrix.init(content)) return null
     return matrix
+}
+
+private fun readContent(n: Int): List<List<Double>>? {
+    val result = try {
+        List(n) { readln().split(" ").map {it.toDouble() }}
+    } catch (e: NumberFormatException) {
+        println("Invalid input for matrix: Not a number.")
+        null
+    }
+    return result
 }
 
 fun readConstant() : Double? {
@@ -137,23 +140,3 @@ fun readDimensions(): Pair<Int, Int>? {
     }
 }
 
-private fun readContent(n: Int): List<List<Double>>? {
-    val result = try {
-        List(n) { readln().split(" ").map {it.toDouble() }}
-    } catch (e: NumberFormatException) {
-        println("Invalid input for matrix: Not a number.")
-        null
-    }
-    return result
-}
-
-fun printMatrix(result: Matrix) {
-    println("The result is:")
-    if (result.values.all { row -> row.all { no -> no.compareTo(no.toInt()) == 0} }) {
-        // all Doubles are whole numbers -> cast to Int
-        println(result.values.joinToString("\n") { row ->
-            row.map { it.toInt() }.joinToString(" ") })
-    } else {
-        println(result.values.joinToString("\n") { it.joinToString(" ") })
-    }
-}

@@ -36,6 +36,10 @@ class Matrix(private val n: Int, private val m: Int) {
             values[i].map { value -> value * constant } })
     }
 
+    operator fun Double.times(matrix: Matrix) : Matrix {
+        return matrix * this
+    }
+
     operator fun times(other: Matrix) : Matrix {
         return Matrix(List(n) { i ->  // iterate over A's rows -> new rows
             List(other.m) { j ->  // iterate over B's columns -> fill new row
@@ -72,21 +76,36 @@ class Matrix(private val n: Int, private val m: Int) {
         }
     }
 
-    fun getDeterminant(): Double {
+    fun getDeterminant(): Double? {
+        if (n != m) return null
         return determinantOf(values)
+    }
 
+    fun inverse(): Matrix? {
+        val determinant = getDeterminant()
+        if (determinant == null || determinant == 0.0) return null
+        return 1.0 / determinant * cofactorMatrix().transpose()
+    }
+
+    private fun cofactorMatrix(): Matrix {
+        return Matrix(List(n) { i ->
+            List(n) { j -> cofactor(values, i, j) }
+        })
     }
 
     private fun determinantOf(values: List<List<Double>>): Double {
-        val determinant: Double
-        // case n==m==2
-        if (values.size == 2) {
-             determinant = values[0][0] * values[1][1] - values[0][1] * values[1][0]
+
+        return if (values.size == 2) {
+            // case n==m==2
+            values[0][0] * values[1][1] - values[0][1] * values[1][0]
         } else {
-            // general case
-            determinant = List(values[0].size) { i -> values[0][i] * (-1.0).pow(i) * minor(values, Pair(0, i)) }.sum()
+            // general case -> recursion
+            List(values[0].size) { j -> values[0][j] * cofactor(values, 0, j) }.sum()
         }
-        return determinant
+    }
+
+    private fun cofactor(values: List<List<Double>>, i: Int, j: Int): Double {
+       return (-1.0).pow(i + j) * minor(values, Pair(i, j))
     }
 
     private fun minor(values: List<List<Double>>, expand: Pair<Int,Int>): Double {
@@ -95,4 +114,17 @@ class Matrix(private val n: Int, private val m: Int) {
         return determinantOf(subMatrix)
     }
 
+    fun print() {
+        println("The result is:")
+        if (values.all { row -> row.all { no -> no.compareTo(no.toInt()) == 0} }) {
+            // all Doubles are whole numbers -> cast to Int
+            println(values.joinToString("\n") { row ->
+                row.map { it.toInt() }.joinToString(" ") })
+        } else {
+            println(values.joinToString("\n") { it.joinToString(" ") })
+        }
+        println()
+    }
+
 }
+
