@@ -1,5 +1,6 @@
 package processor
 
+import processor.Matrix.TranspositionType
 import kotlin.system.exitProcess
 
 fun main() {
@@ -8,16 +9,47 @@ fun main() {
         println("1. Add matrices")
         println("2. Multiply matrix by a constant")
         println("3. Multiply matrices")
+        println("4. Transpose matrix")
         println("0. Exit")
         print("Your choice: ")
         when (readln()) {
             "1" -> addMatrices()
             "2" -> scalarMultiplication()
             "3" -> matrixMultiplication()
+            "4" -> transposeMatrix()
             "0" -> exitProcess(0)
             else -> println("Invalid input. Try again.")
         }
     }
+}
+
+fun transposeMatrix() {
+    // transposition type menu
+    println("\n1. Main diagonal")
+    println("2. Side diagonal")
+    println("3. Vertical line")
+    println("4. Horizontal line")
+    print("Your choice: ")
+    val type = when (readln()) {
+        "1" -> TranspositionType.MAIN_DIAGONAL
+        "2" -> TranspositionType.SIDE_DIAGONAL
+        "3" -> TranspositionType.VERTICAL
+        "4" -> TranspositionType.HORIZONTAL
+        else -> {
+            println("Invalid input. Try again.")
+            return
+        }
+    }
+    // read matrix A
+    println("Enter matrix size:")
+    val dims = readDimensions() ?: return
+    val matrix = Matrix(dims.first, dims.second)
+    println("Enter matrix:")
+    val content = readMatrix(dims.first, dims.second) ?: return
+    if (!matrix.init(content)) return
+    // transpose
+    val result = matrix.transpose(type)
+    printMatrix(result)
 }
 
 fun matrixMultiplication() {
