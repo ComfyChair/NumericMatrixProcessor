@@ -1,6 +1,7 @@
 package processor
 
 import kotlin.math.pow
+import kotlin.math.abs
 
 class Matrix(private val n: Int, private val m: Int) {
     val dims = Pair(n, m)
@@ -115,19 +116,33 @@ class Matrix(private val n: Int, private val m: Int) {
     }
 
     fun print() {
-        //TODO("Adjust width of entries to actually needed width")
+        var width : Int = maxDigits(values)
         println("The result is:")
         val matrix : String = if (values.all { row -> row.all { no -> no.compareTo(no.toInt()) == 0} }) {
             // all Doubles are whole numbers -> cast to Int
             values.joinToString("\n") { row ->
-                row.joinToString(" ") { "% 4d".format(it.toInt()) }
+                row.joinToString(" ") {
+                        "%${width}d".format(it.toInt()) }
             }
         } else {
+            width += 3
             values.joinToString("\n") { row ->
-                row.joinToString(" ") {"%8.2f".format(it) }
+                row.joinToString(" ") {"%${width}.2f".format(it) }
             }
         }
         println("$matrix\n")
+    }
+
+    private fun maxDigits(values: List<List<Double>>): Int {
+        var maxNumber = values.maxOf { row -> row.maxOf { abs(it) } }
+        var digits = 1
+        while (maxNumber / 10 >= 1) {
+            digits++
+            maxNumber /= 10
+        }
+        // add 1 more for minus sign only if matrix contains negative numbers
+        if (values.any { row -> row.any { it < 0 } }) digits++
+        return digits
     }
 
 }
