@@ -1,7 +1,6 @@
 package processor
 
 import kotlin.math.pow
-import kotlin.math.abs
 
 class Matrix(private val n: Int, private val m: Int) {
     val dims = Pair(n, m)
@@ -116,33 +115,35 @@ class Matrix(private val n: Int, private val m: Int) {
     }
 
     fun print() {
-        var width : Int = maxDigits(values)
         println("The result is:")
-        val matrix : String = if (values.all { row -> row.all { no -> no.compareTo(no.toInt()) == 0} }) {
-            // all Doubles are whole numbers -> cast to Int
-            values.joinToString("\n") { row ->
-                row.joinToString(" ") {
-                        "%${width}d".format(it.toInt()) }
-            }
-        } else {
-            width += 3
-            values.joinToString("\n") { row ->
-                row.joinToString(" ") {"%${width}.2f".format(it) }
+        val asStrings : List<List<String>> =
+            if (values.all { row -> row.all { no -> no.compareTo(no.toInt()) == 0} }) {
+                // if matrix only contains whole numbers: cast to Int
+                val width : List<Int> = maxIntDigits()
+                values.map { row -> row.mapIndexed { j, no -> "%${width[j]}d".format(no.toInt()) } }
+            } else {
+                // else, 2 decimal places for whole matrix
+                val width : List<Int> = maxDoubleDigits(2)
+                values.map { row -> row.mapIndexed { j, no ->"%${width[j]}.2f".format(no) }
             }
         }
-        println("$matrix\n")
+        val joined = asStrings.joinToString("\n") { // join row to row with linebreak
+            it.joinToString("  ") }                  // join values in rows with 2 whitespaces
+        println("$joined\n")
     }
 
-    private fun maxDigits(values: List<List<Double>>): Int {
-        var maxNumber = values.maxOf { row -> row.maxOf { abs(it) } }
-        var digits = 1
-        while (maxNumber / 10 >= 1) {
-            digits++
-            maxNumber /= 10
-        }
-        // add 1 more for minus sign only if matrix contains negative numbers
-        if (values.any { row -> row.any { it < 0 } }) digits++
-        return digits
+    private fun maxDoubleDigits(decimals: Int): List<Int> {
+        val transposed = transpose() // switch rows and columns
+        // map columns to length of longest String representation
+        return transposed.values.map { col ->
+            col.maxOf { "%.${decimals}f".format(it).length } }
+    }
+
+    private fun maxIntDigits(): List<Int> {
+        val transposed = transpose() // switch rows and columns
+        // map columns to length of longest String representation
+        return transposed.values.map { col ->
+            col.maxOf { it.toInt().toString().length } }
     }
 
 }
